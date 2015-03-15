@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<CONFIG>
+  <cfgtest>
+    <MainWindow Caption="TXMLConfig Test">
+      <Constraints Width="600" Height="400"/>
+    </MainWindow>
+    <SomeForm>
+      <Presets>
+        <Preset1 Name="Example"/>
+      </Presets>
+    </SomeForm>
+  </cfgtest>
+  <TipOfTheDay Disabled="True"/>
+</CONFIG>
+
+
+

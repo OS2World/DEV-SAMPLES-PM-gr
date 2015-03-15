@@ -1,0 +1,797 @@
+head	7.0;
+access;
+symbols;
+locks;
+comment	@# @;
+
+
+7.0
+date	2008.06.08.03.33.19;	author Average;	state Exp;
+branches;
+next	6.2;
+
+6.2
+date	2007.07.22.04.56.58;	author Average;	state Exp;
+branches;
+next	6.1;
+
+6.1
+date	2007.07.21.18.25.24;	author Average;	state Exp;
+branches;
+next	5.3;
+
+5.3
+date	2007.07.14.13.48.00;	author Average;	state Exp;
+branches;
+next	5.2;
+
+5.2
+date	2007.07.04.16.14.36;	author Average;	state Exp;
+branches;
+next	5.1;
+
+5.1
+date	2007.07.04.12.44.23;	author Average;	state Exp;
+branches;
+next	4.5;
+
+4.5
+date	2007.07.01.12.59.41;	author Average;	state Exp;
+branches;
+next	4.4;
+
+4.4
+date	2007.06.26.14.45.58;	author Average;	state Exp;
+branches;
+next	4.3;
+
+4.3
+date	2007.06.26.14.03.08;	author Average;	state Exp;
+branches;
+next	4.2;
+
+4.2
+date	2007.06.25.15.49.58;	author Average;	state Exp;
+branches;
+next	4.1;
+
+4.1
+date	2007.06.25.12.37.11;	author Average;	state Exp;
+branches;
+next	3.7;
+
+3.7
+date	2007.06.21.15.23.37;	author Average;	state Exp;
+branches;
+next	3.6;
+
+3.6
+date	2007.06.20.13.41.21;	author Average;	state Exp;
+branches;
+next	3.5;
+
+3.5
+date	2007.06.19.16.07.42;	author Average;	state Exp;
+branches;
+next	3.4;
+
+3.4
+date	2007.06.19.14.23.47;	author Average;	state Exp;
+branches;
+next	3.3;
+
+3.3
+date	2007.06.17.14.10.09;	author Average;	state Exp;
+branches;
+next	3.2;
+
+3.2
+date	2007.06.17.13.12.39;	author Average;	state Exp;
+branches;
+next	3.1;
+
+3.1
+date	2007.06.17.12.40.01;	author Average;	state Exp;
+branches;
+next	2.2;
+
+2.2
+date	2007.06.15.15.38.49;	author Average;	state Exp;
+branches;
+next	2.1;
+
+2.1
+date	2007.06.14.13.33.13;	author Average;	state Exp;
+branches;
+next	2.0;
+
+2.0
+date	2007.06.13.16.06.57;	author Average;	state Exp;
+branches;
+next	1.5;
+
+1.5
+date	2007.06.13.15.05.31;	author Average;	state Exp;
+branches;
+next	1.4;
+
+1.4
+date	2007.06.12.15.48.15;	author Average;	state Exp;
+branches;
+next	1.3;
+
+1.3
+date	2007.06.12.15.44.57;	author Average;	state Exp;
+branches;
+next	1.2;
+
+1.2
+date	2007.06.12.15.22.03;	author Average;	state Exp;
+branches;
+next	1.1;
+
+1.1
+date	2007.06.06.15.39.17;	author Average;	state Exp;
+branches;
+next	;
+
+
+desc
+@@
+
+
+7.0
+log
+@画像ファ@イルが見えなくなる問題を修正する版。これが初め
+@
+text
+@#include "../../vp21/res.os2/pm.h"
+
+
+#define IDB_LEFT        12001
+#define IDB_RIGHT       12002
+#define IDB_UP          12003
+#define IDB_DOWN        12004
+#define IDB_FIT         12005
+#define IDB_RUN         12006
+#define IDB_STOP        12007
+#define IDB_EXIT        12008
+#define IDB_UPTIME      12009
+#define IDB_DOWNTIME    12010
+#define IDB_FULLSCR     12011
+#define IDB_SETTING     12012
+#define IDB_SHOWDLG     12013
+
+#define idGraphShow     11000
+
+#define DLGPanel        10000
+#define IDColorButton   10001
+#define IDDropSpin      10002
+#define IDRoundCheck    10003
+#define IDRoundSpin     10004
+#define IDDropOptSpin   10005
+#define IDResizeXSpin   10010
+#define IDResizeYSpin   10011
+#define IDResizeCheck   10012
+
+#define IDRender        10100
+#define IDUndo          10101
+#define IDSaveRender    10102
+
+#define OptionDialog    13000
+#define IDPNGRadio      13001
+#define IDJPEGRadio     13002
+#define IDJPEGSpin      13003
+#define IDAlbumSpin     13004
+
+ICON idGraphShow  "ground.ico"
+
+BITMAP IDB_LEFT  "./res/left.bmp"
+BITMAP IDB_RIGHT "./res/right.bmp"
+BITMAP IDB_UP    "./res/up.bmp"
+BITMAP IDB_DOWN  "./res/down.bmp"
+BITMAP IDB_FIT   "./res/fit.bmp"
+BITMAP IDB_RUN   "./res/run.bmp"
+BITMAP IDB_STOP  "./res/pause.bmp"
+BITMAP IDB_EXIT  "./res/exit.bmp"
+BITMAP IDB_UPTIME "./res/uptime.bmp"
+BITMAP IDB_DOWNTIME "./res/downtime.bmp"
+BITMAP IDB_SETTING "./res/gear.bmp"
+BITMAP IDB_SHOWDLG "./res/showdlg.bmp"
+
+ACCELTABLE idGraphShow
+{
+   "w",         IDB_EXIT,   AF_CONTROL
+}
+
+
+DLGTEMPLATE DLGPanel LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG "Round Dialog", DLGPanel, 8, 6, 220, 140,
+           WS_SYNCPAINT | WS_VISIBLE, FCF_TITLEBAR
+    BEGIN
+
+        CONTROL         "", IDResizeYSpin, 100, 114, 40, 10,  WC_SPINBUTTON,
+                        WS_VISIBLE | WS_TABSTOP | SPBS_MASTER
+        LTEXT           "Resize Width", 115, 140, 114, 61, 11,
+                        NOT WS_GROUP | DT_VCENTER
+        AUTOCHECKBOX  "Resize Bitmap", IDResizeCheck,
+                      20, 114, 73, 10, WS_GROUP
+
+        AUTOCHECKBOX  "Round Rect ?", IDRoundCheck,
+                      20, 76, 108, 11, WS_GROUP
+        LTEXT           "Round Radian", 103, 141, 75, 61, 11,
+                        NOT WS_GROUP | DT_VCENTER
+        
+        CONTROL       "", IDRoundSpin, 100, 76, 40, 10, WC_SPINBUTTON,
+                      WS_VISIBLE | WS_TABSTOP | SPBS_NUMERICONLY | SPBS_MASTER
+
+        PUSHBUTTON    "Drop Color Palett",IDColorButton,16,28,70,26, WS_GROUP
+        CONTROL       "", IDDropSpin, 100, 43, 40, 10, WC_SPINBUTTON,
+                      WS_VISIBLE | WS_TABSTOP | SPBS_NUMERICONLY | SPBS_MASTER
+        LTEXT         "Shadow Offset", 113, 141, 42, 61, 11,
+                      NOT WS_GROUP | DT_VCENTER
+
+        PUSHBUTTON    "Only Render",  IDRender, 	  11, 6, 61, 13, WS_GROUP
+        PUSHBUTTON    "Render & Save",IDSaveRender, 81, 6, 61, 12
+        PUSHBUTTON    "Undo",         IDUndo,      151, 6, 61, 12
+        
+        GROUPBOX      "Resize Bitmap", 109,            11,110, 202, 25
+        GROUPBOX      "About Round Rect",   104,         11, 72, 202, 32
+        GROUPBOX      "Drop Shadow Color  & Other", 108, 11, 24, 202, 40
+    END
+END
+
+DLGTEMPLATE OptionDialog LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG "Save File Option", OptionDialog, 4, 8, 191, 150, 
+           WS_SYNCPAINT | NOT FS_DLGBORDER | FS_SIZEBORDER | WS_VISIBLE,
+           FCF_TITLEBAR
+    BEGIN
+        AUTORADIOBUTTON "PNG Format", IDPNGRadio, 24, 114, 123, 11,
+                        NOT WS_TABSTOP | WS_GROUP
+        AUTORADIOBUTTON "JPEG Format", IDJPEGRadio, 23, 100, 123, 11, 
+                        NOT WS_TABSTOP
+        CONTROL         "", IDJPEGSpin, 24, 64, 40, 10, WC_SPINBUTTON,
+                      WS_VISIBLE | WS_TABSTOP | SPBS_MASTER | SPBS_NUMERICONLY
+        LTEXT           "Quality Of JPEG File", 13006, 64, 62, 85, 12,
+                        NOT WS_GROUP | DT_VCENTER
+        GROUPBOX        "Format Of SaveFile", 13007, 15, 94, 149, 40
+        GROUPBOX        "JPEG Option", 13008, 15, 52, 150, 34
+        LTEXT           "Number Of Picture Colum", 13011, 62, 23, 90, 12,
+                        NOT WS_GROUP | DT_VCENTER
+        CONTROL         "", IDAlbumSpin, 23, 24, 40, 10, WC_SPINBUTTON,
+                      WS_VISIBLE | WS_TABSTOP | SPBS_MASTER | SPBS_NUMERICONLY
+        PUSHBUTTON      "OK", 1, 14, 2, 40, 12, WS_GROUP
+        PUSHBUTTON      "CANCEL", 2, 68, 2, 40, 12
+        GROUPBOX        "Album Picture", 13009, 8, 46, 170, 100
+        GROUPBOX        "Album Figure", 13010, 9, 19, 170, 25
+    END
+END
+@
+
+
+6.2
+log
+@ダイアログに数値を表示可能に
+@
+text
+@d38 1
+d85 2
+a86 2
+        LTEXT           "Shadow Offset", 113, 141, 42, 61, 11,
+                        NOT WS_GROUP | DT_VCENTER
+d88 3
+a90 3
+        PUSHBUTTON      "Only Render",  IDRender, 	  11, 6, 61, 13, WS_GROUP
+        PUSHBUTTON      "Render & Save",IDSaveRender, 81, 6, 61, 12
+        PUSHBUTTON      "Undo",         IDUndo,      151, 6, 61, 12
+d92 1
+a92 1
+        GROUPBOX        "Resize Bitmap", 109,            11,110, 202, 25
+a97 1
+
+d100 1
+a100 1
+    DIALOG "Save File Option", OptionDialog, 7, 8, 169, 112, 
+d104 1
+a104 1
+        AUTORADIOBUTTON "PNG Format", IDPNGRadio, 17, 86, 123, 11,
+d106 1
+a106 1
+        AUTORADIOBUTTON "JPEG Format", IDJPEGRadio, 16, 72, 123, 11, 
+d108 7
+a114 3
+        CONTROL         "", IDJPEGSpin, 18, 38, 40, 10, WC_SPINBUTTON,
+                        WS_VISIBLE | WS_TABSTOP | SPBS_MASTER
+        LTEXT           "Quality Of JPEG File", 13006, 58, 36, 85, 12,
+d116 6
+a121 4
+        PUSHBUTTON      "OK", DID_OK, 10, 10, 40, 12, WS_GROUP
+        PUSHBUTTON      "CANCEL", DID_CANCEL, 55, 10, 40, 12
+        GROUPBOX        "Format Of SaveFile", 13007, 8, 66, 149, 42
+        GROUPBOX        "JPEG Option", 13008, 9, 26, 150, 35
+@
+
+
+6.1
+log
+@セーブオプションダイアログを導入
+@
+text
+@d34 4
+a37 4
+#define OptionDialog    11000
+#define IDPNGRadio      11001
+#define IDJPEGRadio     11002
+#define IDJPEGSpin      11003
+d110 1
+a110 1
+        LTEXT           "Quality Of JPEG File", 11106, 58, 36, 85, 12,
+d114 2
+a115 2
+        GROUPBOX        "Format Of SaveFile", 11107, 8, 66, 149, 42
+        GROUPBOX        "JPEG Option", 11108, 9, 26, 150, 35
+@
+
+
+5.3
+log
+@Only Renderに名前変更
+@
+text
+@d34 5
+d59 1
+d98 20
+@
+
+
+5.2
+log
+@ばばんと変わった?
+@
+text
+@d81 3
+a83 3
+        PUSHBUTTON      "Render",        IDRender, 	   11, 6, 61, 13, WS_GROUP
+        PUSHBUTTON      "Render & Save", IDSaveRender, 81, 6, 61, 12
+        PUSHBUTTON      "Undo",          IDUndo,      151, 6, 61, 12
+d85 1
+a85 1
+        GROUPBOX        "Resize Bitmap", 109, 11, 110, 202, 25
+@
+
+
+5.1
+log
+@周辺ぼかしをアルゴリズムじゃなくてぼかしで
+@
+text
+@d32 1
+a32 1
+
+d81 3
+a83 2
+        PUSHBUTTON    "Make Render", IDRender, 14, 6, 62, 13, WS_GROUP
+        PUSHBUTTON    "Undo", IDUndo, 132, 7, 61, 12
+@
+
+
+4.5
+log
+@ダイアログの形を変えた
+@
+text
+@@
+
+
+4.4
+log
+@縦横比の正確さを求める
+@
+text
+@d56 1
+a56 1
+    DIALOG "Round Dialog", DLGPanel, 8, 6, 220, 153,
+d60 1
+a60 1
+        CONTROL         "", IDResizeXSpin,  20, 127, 40, 10, WC_SPINBUTTON,
+d62 1
+a62 5
+        CTEXT           "X Size", 114,      60, 126, 29, 11,
+                        NOT WS_GROUP | DT_VCENTER
+        CONTROL         "", IDResizeYSpin, 100, 127, 40, 10,  WC_SPINBUTTON,
+                        WS_VISIBLE | WS_TABSTOP | SPBS_MASTER
+        CTEXT           "Y Size", 115, 140, 126, 28, 11,
+d65 1
+a65 1
+                      20, 114, 79, 10, WS_GROUP
+d69 3
+a71 3
+
+        CTEXT         "Round Radian", 103, 138, 75, 61, 11,
+                      NOT WS_GROUP | DT_VCENTER
+d78 2
+d81 1
+a81 4
+        CTEXT         "Shadow Offset", 113, 138, 43, 61, 11,
+                      NOT WS_GROUP | DT_VCENTER
+
+        PUSHBUTTON    "Make Round", IDRender, 14, 6, 62, 13, WS_GROUP
+d83 2
+a84 1
+        GROUPBOX        "Resize Bitmap", 109, 11, 110, 202, 38
+@
+
+
+4.3
+log
+@ 一応Webページが表示できるように
+@
+text
+@@
+
+
+4.2
+log
+@とりあえずmakeroudしながらの閲覧は大丈夫になりました。
+これからWebページの構築へ
+@
+text
+@@
+
+
+4.1
+log
+@ Webアルバム化
+@
+text
+@@
+
+
+3.7
+log
+@とりあえず縮小が上手く動くように
+@
+text
+@@
+
+
+3.6
+log
+@リサイズ直前リファ@クタ版
+@
+text
+@d56 1
+a56 1
+    DIALOG "Round Dialog", DLGPanel, 8, 6, 220, 153, 
+d67 5
+a71 4
+                        NOT WS_GROUP | DT_VCENTER 
+        AUTOCHECKBOX    "Resize Bitmap", 10102, 20, 114, 79, 10, WS_GROUP
+    
+        AUTOCHECKBOX  "Round Rect ?", IDRoundCheck, 
+d94 1
+a94 1
+            @
+
+
+3.5
+log
+@ちょこっとダイアログを増やしました
+@
+text
+@d89 1
+a89 1
+        GROUPBOX      "Drop Shadow Color  & Other", 108, 11, 24, 202, 38
+@
+
+
+3.4
+log
+@PNGファ@イルの書き込みを可能に
+@
+text
+@d26 4
+d56 1
+a56 1
+    DIALOG "Round Dialog", DLGPanel, 8, 6, 220, 108, 
+d59 11
+d72 1
+d77 1
+d81 1
+d84 1
+a84 4
+        CTEXT         "Drop Direction", 113, 138, 29, 61, 11,
+                      NOT WS_GROUP | DT_VCENTER
+        CONTROL       "", IDDropOptSpin, 100, 29, 40, 10, WC_SPINBUTTON,
+                      WS_VISIBLE | WS_TABSTOP | SPBS_MASTER | SPBS_READONLY
+d87 2
+a88 1
+        GROUPBOX      "About Round Rect", 104,           11, 72, 202, 32
+d92 1
+@
+
+
+3.3
+log
+@ダイアログデザイン、及びUndoを活性化
+(活性化はそれまで)
+@
+text
+@d57 1
+a57 1
+        CTEXT         "Round Radian", 103, 138, 75, 61, 12,
+d59 1
+a59 1
+        CONTROL       "", IDRoundSpin, 108, 76, 32, 10, WC_SPINBUTTON,
+d62 1
+a62 1
+        CONTROL       "", IDDropSpin, 108, 43, 32, 10, WC_SPINBUTTON,
+d64 1
+a64 1
+        CTEXT         "Shadow Offset", 112, 138, 43, 58, 9,
+d66 1
+a66 1
+        CTEXT         "Drop Direction", 113, 138, 29, 59, 11,
+d68 2
+a69 2
+        CONTROL       "", IDDropOptSpin, 108, 29, 32, 10, WC_SPINBUTTON,
+                      WS_VISIBLE | WS_TABSTOP | SPBS_MASTER
+d72 2
+a73 2
+        GROUPBOX      "About Round Rect", 104, 10, 72, 202, 32
+        GROUPBOX      "Drop Shadow Color  & Other", 108, 11, 24, 201, 38
+@
+
+
+3.2
+log
+@とりあえずリファ@クタリング
+@
+text
+@d52 1
+a52 1
+    DIALOG "Round Dialog", DLGPanel, 8, 6, 220, 121, 
+d55 3
+a57 3
+        AUTOCHECKBOX  "Make Round Rect", IDRoundCheck, 
+                      20, 92, 114, 11, WS_GROUP
+        CTEXT         "Round Radian", 103, 63, 75, 61, 12,
+d59 1
+a59 1
+        CONTROL       "", IDRoundSpin, 21, 76, 44, 10, WC_SPINBUTTON,
+d62 1
+a62 1
+        CONTROL       "", IDDropSpin, 91, 43, 48, 10, WC_SPINBUTTON,
+d68 1
+a68 1
+        CONTROL       "", IDDropOptSpin, 92, 29, 47, 10, WC_SPINBUTTON,
+d72 1
+a72 1
+        GROUPBOX      "About Round Rect", 104, 10, 68, 202, 44
+@
+
+
+3.1
+log
+@影の方向を色々に変更出来るように
+試行錯誤バージョン(変更はじめ)
+@
+text
+@a49 1
+
+d52 1
+a52 1
+    DIALOG "Round Dialog", DLGPanel, 8, 6, 156, 170, 
+d55 19
+a73 21
+        AUTOCHECKBOX    "Make Round Rect", IDRoundCheck, 
+                        18, 144, 114, 11, WS_GROUP
+        CTEXT           "Round Radian", 103, 61, 127, 61, 12,
+                        NOT WS_GROUP | DT_VCENTER
+        CONTROL         "", IDRoundSpin, 19, 128, 44, 10, WC_SPINBUTTON,
+                        WS_VISIBLE | WS_TABSTOP | SPBS_NUMERICONLY | SPBS_MASTER
+        CONTROL         "", IDDropSpin, 17, 94, 48, 10, WC_SPINBUTTON,
+                        WS_VISIBLE | WS_TABSTOP | SPBS_NUMERICONLY | SPBS_MASTER
+        CONTROL         "", IDDropOptSpin, 17, 76, 47, 10, WC_SPINBUTTON,
+                        WS_VISIBLE | WS_TABSTOP | SPBS_MASTER
+        CTEXT           "Shadow Offset", 112, 65, 94, 58, 9,
+                        NOT WS_GROUP | DT_VCENTER
+        CTEXT           "Drop Direction", 113, 64, 75, 59, 11,
+                        NOT WS_GROUP | DT_VCENTER
+        PUSHBUTTON      "Drop Color Palett", IDColorButton, 
+                        16, 28, 70, 26, WS_GROUP
+        PUSHBUTTON      "Make Round", IDRender, 14, 6, 62, 13, WS_GROUP
+        PUSHBUTTON      "Undo", IDUndo, 86, 6, 61, 12
+        GROUPBOX        "About Round Rect", 104, 8, 121, 138, 44
+        GROUPBOX        "About Drop Shadow ", 107, 11, 69, 135, 47
+        GROUPBOX        "Drop Shadow Color", 108, 11, 24, 135, 38
+@
+
+
+2.2
+log
+@まずは影の完全描画
+@
+text
+@d16 1
+d25 1
+d43 1
+a50 1
+
+d53 2
+a54 2
+    DIALOG "Round Dialog", DLGPanel, 6, 6, 176, 126, 
+           WS_SYNCPAINT | WS_VISIBLE, FCF_TITLEBAR | FCF_TASKLIST
+d57 10
+a66 2
+        				 22, 102, 114, 11, WS_GROUP        
+        CTEXT           "Round Radian", 103, 65, 85, 61, 12,
+d68 1
+a68 8
+        CONTROL         "", IDRoundSpin, 23, 86, 44, 10, WC_SPINBUTTON,
+                        WS_VISIBLE | WS_TABSTOP | SPBS_NUMERICONLY | SPBS_MASTER                                                                   
+
+        PUSHBUTTON      "Drop Color Palett",IDColorButton, 
+        				20, 33, 70, 25, WS_GROUP        
+        CONTROL         "", IDDropSpin, 97, 48, 58, 10, WC_SPINBUTTON,
+                      WS_VISIBLE | WS_TABSTOP | SPBS_NUMERICONLY | SPBS_MASTER
+        CTEXT           "Shadow Offset", 112, 98, 34, 58, 10,
+d70 2
+d73 4
+a76 3
+        PUSHBUTTON      "Undo", IDUndo, 96, 7, 61, 11
+        GROUPBOX        "About Round Rect", 104, 12, 79, 153, 44
+        GROUPBOX        "About Drop Shadow ", 107, 13, 25, 152, 47
+@
+
+
+2.1
+log
+@Undoのガラだけ付けました。
+@
+text
+@d52 1
+a52 1
+           WS_SYNCPAINT | WS_VISIBLE, FCF_TITLEBAR
+@
+
+
+2.0
+log
+@BMP読み込みルーチンを削除
+@
+text
+@d19 9
+d48 2
+a49 1
+DLGTEMPLATE 100 LOADONCALL MOVEABLE DISCARDABLE
+d51 1
+a51 1
+    DIALOG "Round Dialog", 100, 4, 4, 176, 120,
+d54 3
+a56 5
+        AUTOCHECKBOX    "Make Round Rect", 101, 24, 88, 114, 11, WS_GROUP
+        PUSHBUTTON      "Drop Color Palett",110, 20, 33, 70, 25, WS_GROUP
+        CONTROL         "", 102, 99, 48, 63, 10, WC_SPINBUTTON,
+                        WS_VISIBLE | WS_TABSTOP | SPBS_MASTER
+        CTEXT           "Round Radian", 103, 99, 33, 63, 11,
+d58 13
+a70 3
+        PUSHBUTTON      "Make Round", DID_OK, 14, 6, 62, 13, WS_GROUP
+        GROUPBOX        "About Round Rect", 104, 12, 79, 153, 36
+        GROUPBOX        "Drop Shadow ", 107, 13, 25, 154, 47
+d73 1
+a73 1
+
+@
+
+
+1.5
+log
+@カラーパレットから影の色をコントロールできるように
+@
+text
+@@
+
+
+1.4
+log
+@いらない定義を外した
+@
+text
+@d41 2
+a42 3
+    DIALOG "Round Dialog", 100, 6, 6, 176, 124, 
+           WS_SYNCPAINT | FS_DLGBORDER | WS_VISIBLE,
+           FCF_TITLEBAR
+d44 3
+a46 4
+        AUTOCHECKBOX    "Make Round Rect", 101, 24, 92, 114, 11, WS_GROUP
+        CONTROL         "", 105, 29, 33, 26, 21, WC_STATIC,
+                        WS_VISIBLE | SS_FGNDFRAME
+        CONTROL         "", 102, 87, 52, 46, 10, WC_SPINBUTTON,
+d48 1
+a48 1
+        CTEXT           "Round Radian", 103, 87, 37, 63, 11,
+d50 3
+a52 5
+        GROUPBOX        "Drop Color", 106, 22, 29, 56, 33
+        PUSHBUTTON      "Make Round", 1, 14, 6, 62, 13, WS_GROUP
+        PUSHBUTTON      "Make Default", 110, 97, 7, 67, 12
+        GROUPBOX        "About Round Rect", 104, 12, 83, 153, 36
+        GROUPBOX        "Drop Shadow ", 107, 13, 24, 154, 52
+d55 1
+a55 1
+                                                                            @
+
+
+1.3
+log
+@レンダーダイアログの登場。
+@
+text
+@a16 9
+#define ID_GSVSetting   13000
+#define ID_RADIO1       13001
+#define ID_RADIO2       13002
+#define ID_RADIO5       13003
+#define ID_RADIO10      13004
+#define ID_SPINTEXT     13005
+#define ID_SLIDER       13006
+#define ID_SLIDERTEXT   13007
+
+a35 7
+   VK_PAGEUP,   IDB_LEFT,   AF_VIRTUALKEY
+   VK_PAGEDOWN, IDB_RIGHT,  AF_VIRTUALKEY
+   "r",         IDB_RUN,    AF_CONTROL
+   " ",         IDB_STOP
+   "f",			IDB_FULLSCR ,AF_CONTROL
+   "d",         IDB_RIGHT   ,AF_CONTROL
+   "s",         IDB_LEFT    ,AF_CONTROL 
+@
+
+
+1.2
+log
+@とりあえずダイアログを出した。
+@
+text
+@d58 2
+a59 2
+           WS_SYNCPAINT | NOT FS_DLGBORDER | FS_SIZEBORDER | WS_VISIBLE,
+           FCF_SYSMENU | FCF_TITLEBAR
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d55 1
+a55 1
+DLGTEMPLATE ID_GSVSetting LOADONCALL MOVEABLE DISCARDABLE
+d57 3
+a59 3
+    DIALOG "GSV Setting", ID_GSVSetting, 140, 115, 192, 96, 
+           WS_SYNCPAINT | FS_DLGBORDER | WS_VISIBLE,
+           FCF_TITLEBAR
+d61 12
+a72 13
+        AUTORADIOBUTTON "1 sec", ID_RADIO1,  15, 68, 40, 11, WS_GROUP
+        AUTORADIOBUTTON "2 sec", ID_RADIO2,  55, 68, 40, 11, 
+        AUTORADIOBUTTON "5 sec", ID_RADIO5,  95, 68, 40, 11, 
+        AUTORADIOBUTTON "10 sec",ID_RADIO10,135, 69, 40, 11, 
+        GROUPBOX  "SlideShow Cycle Time(sec)",ID_SPINTEXT, 10, 68, 172, 24
+        SLIDER   ID_SLIDER, 10, 38, 165, 30,
+                    WS_VISIBLE | WS_TABSTOP | WS_GROUP |
+                    SLS_PRIMARYSCALE1 | SLS_BOTTOM
+                    CTLDATA 12, 0, 12, 26, 0, 0
+        CTEXT     "Ganmma Value",ID_SLIDERTEXT,10,25,172, 10,
+                    NOT WS_GROUP | DT_VCENTER
+        PUSHBUTTON   "~Ok", DID_OK, 12, 3, 70, 14, WS_GROUP
+        PUSHBUTTON   "~Cancel",DID_CANCEL, 112, 3, 70, 14, WS_GROUP
+d75 1
+@

@@ -1,0 +1,123 @@
+#include "../../vp21/res.os2/pm.h"
+
+
+#define IDB_LEFT        12001
+#define IDB_RIGHT       12002
+#define IDB_UP          12003
+#define IDB_DOWN        12004
+#define IDB_FIT         12005
+#define IDB_RUN         12006
+#define IDB_STOP        12007
+#define IDB_EXIT        12008
+#define IDB_UPTIME      12009
+#define IDB_DOWNTIME    12010
+#define IDB_FULLSCR     12011
+#define IDB_SETTING     12012
+#define IDB_SHOWDLG     12013
+
+#define idGraphShow     11000
+
+#define DLGPanel        10000
+#define IDColorButton   10001
+#define IDDropSpin      10002
+#define IDRoundCheck    10003
+#define IDRoundSpin     10004
+#define IDDropOptSpin   10005
+#define IDResizeXSpin   10010
+#define IDResizeYSpin   10011
+#define IDResizeCheck   10012
+
+#define IDRender        10100
+#define IDUndo          10101
+#define IDSaveRender    10102
+
+#define OptionDialog    13000
+#define IDPNGRadio      13001
+#define IDJPEGRadio     13002
+#define IDJPEGSpin      13003
+#define IDAlbumSpin     13004
+
+ICON idGraphShow  "ground.ico"
+
+BITMAP IDB_LEFT  "./res/left.bmp"
+BITMAP IDB_RIGHT "./res/right.bmp"
+BITMAP IDB_UP    "./res/up.bmp"
+BITMAP IDB_DOWN  "./res/down.bmp"
+BITMAP IDB_FIT   "./res/fit.bmp"
+BITMAP IDB_RUN   "./res/run.bmp"
+BITMAP IDB_STOP  "./res/pause.bmp"
+BITMAP IDB_EXIT  "./res/exit.bmp"
+BITMAP IDB_UPTIME "./res/uptime.bmp"
+BITMAP IDB_DOWNTIME "./res/downtime.bmp"
+BITMAP IDB_SETTING "./res/gear.bmp"
+BITMAP IDB_SHOWDLG "./res/showdlg.bmp"
+
+ACCELTABLE idGraphShow
+{
+   "w",         IDB_EXIT,   AF_CONTROL
+}
+
+
+DLGTEMPLATE DLGPanel LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG "Round Dialog", DLGPanel, 8, 6, 220, 140,
+           WS_SYNCPAINT | WS_VISIBLE, FCF_TITLEBAR
+    BEGIN
+
+        CONTROL         "", IDResizeYSpin, 100, 114, 40, 10,  WC_SPINBUTTON,
+                        WS_VISIBLE | WS_TABSTOP | SPBS_MASTER
+        LTEXT           "Resize Width", 115, 140, 114, 61, 11,
+                        NOT WS_GROUP | DT_VCENTER
+        AUTOCHECKBOX  "Resize Bitmap", IDResizeCheck,
+                      20, 114, 73, 10, WS_GROUP
+
+        AUTOCHECKBOX  "Round Rect ?", IDRoundCheck,
+                      20, 76, 108, 11, WS_GROUP
+        LTEXT           "Round Radian", 103, 141, 75, 61, 11,
+                        NOT WS_GROUP | DT_VCENTER
+        
+        CONTROL       "", IDRoundSpin, 100, 76, 40, 10, WC_SPINBUTTON,
+                      WS_VISIBLE | WS_TABSTOP | SPBS_NUMERICONLY | SPBS_MASTER
+
+        PUSHBUTTON    "Drop Color Palett",IDColorButton,16,28,70,26, WS_GROUP
+        CONTROL       "", IDDropSpin, 100, 43, 40, 10, WC_SPINBUTTON,
+                      WS_VISIBLE | WS_TABSTOP | SPBS_NUMERICONLY | SPBS_MASTER
+        LTEXT         "Shadow Offset", 113, 141, 42, 61, 11,
+                      NOT WS_GROUP | DT_VCENTER
+
+        PUSHBUTTON    "Only Render",  IDRender, 	  11, 6, 61, 13, WS_GROUP
+        PUSHBUTTON    "Render & Save",IDSaveRender, 81, 6, 61, 12
+        PUSHBUTTON    "Undo",         IDUndo,      151, 6, 61, 12
+        
+        GROUPBOX      "Resize Bitmap", 109,            11,110, 202, 25
+        GROUPBOX      "About Round Rect",   104,         11, 72, 202, 32
+        GROUPBOX      "Drop Shadow Color  & Other", 108, 11, 24, 202, 40
+    END
+END
+
+DLGTEMPLATE OptionDialog LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG "Save File Option", OptionDialog, 4, 8, 191, 150, 
+           WS_SYNCPAINT | NOT FS_DLGBORDER | FS_SIZEBORDER | WS_VISIBLE,
+           FCF_TITLEBAR
+    BEGIN
+        AUTORADIOBUTTON "PNG Format", IDPNGRadio, 24, 114, 123, 11,
+                        NOT WS_TABSTOP | WS_GROUP
+        AUTORADIOBUTTON "JPEG Format", IDJPEGRadio, 23, 100, 123, 11, 
+                        NOT WS_TABSTOP
+        CONTROL         "", IDJPEGSpin, 24, 64, 40, 10, WC_SPINBUTTON,
+                      WS_VISIBLE | WS_TABSTOP | SPBS_MASTER | SPBS_NUMERICONLY
+        LTEXT           "Quality Of JPEG File", 13006, 64, 62, 85, 12,
+                        NOT WS_GROUP | DT_VCENTER
+        GROUPBOX        "Format Of SaveFile", 13007, 15, 94, 149, 40
+        GROUPBOX        "JPEG Option", 13008, 15, 52, 150, 34
+        LTEXT           "Number Of Picture Colum", 13011, 62, 23, 90, 12,
+                        NOT WS_GROUP | DT_VCENTER
+        CONTROL         "", IDAlbumSpin, 23, 24, 40, 10, WC_SPINBUTTON,
+                      WS_VISIBLE | WS_TABSTOP | SPBS_MASTER | SPBS_NUMERICONLY
+        PUSHBUTTON      "OK", 1, 14, 2, 40, 12, WS_GROUP
+        PUSHBUTTON      "CANCEL", 2, 68, 2, 40, 12
+        GROUPBOX        "Album Picture", 13009, 8, 46, 170, 100
+        GROUPBOX        "Album Figure", 13010, 9, 19, 170, 25
+    END
+END

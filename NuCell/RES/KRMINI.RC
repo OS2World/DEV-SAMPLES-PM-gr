@@ -1,0 +1,245 @@
+#include "c:/vp21/res.os2/pm.h"
+#include "krmini.h"
+
+#define  ID_LoadErrorStr    1500
+#define  ID_SaveErrorStr    1501
+
+ICON ICO_ITEM     .\..\RES\krmini.ico
+ICON ICO_MINIITEM .\..\res\krmini.ico
+ICON ICO_BLANK    .\..\res\blank.ico
+ICON MAIN_FRAME   .\..\res\krmini.ico
+
+BITMAP IDB_FILEOPEN "../res/fileopen.bmp"
+BITMAP IDB_FILESAVE "../res/filesave.bmp"
+BITMAP IDB_FILSAVAS "../res/filsavas.bmp"
+BITMAP IDB_EXIT     "../res/exit.bmp"
+BITMAP IDB_PAGECONF "../res/PageConf.bmp"
+BITMAP ID_FilterExpire  "../res/expire.bmp"
+BITMAP IDB_Exec     "../res/exec.bmp"
+BITMAP IDB_CONFIG   "../res/config.bmp"
+BITMAP IDB_LOCK     "../res/lock.bmp"
+
+BITMAP DID_UP       "../res/up.bmp"
+BITMAP DID_DOWN     "../res/down.bmp"
+BITMAP DID_SHOWHIDE "../res/cancell.bmp"
+BITMAP DID_ISDISP   "../res/isdisp.bmp"
+
+MENU MAIN_FRAME
+{
+    SUBMENU "~File", ID_FILEMENU
+    {
+        MENUITEM "~Load..."        , IDB_FILEOPEN
+        MENUITEM "~Save..."        , IDB_FILESAVE
+        MENUITEM "Save ~as..."        , IDB_FILSAVAS
+        MENUITEM SEPARATOR
+        MENUITEM "~Import"         , ID_FILEIMPORT
+        MENUITEM "~Export"         , ID_FILEEXPORT
+        MENUITEM SEPARATOR
+        MENUITEM "E~xit..."        , IDB_EXIT
+        }
+
+    SUBMENU "~Page", ID_PageMenu
+    {
+        MENUITEM "~New", ID_NewPage
+        MENUITEM "~Delete",ID_DeletePage
+        MenuItem "Show ~Expired" ,ID_FilterExpire
+        MENUITEM SEPARATOR
+        MenuItem "~Configure Page",IDB_PAGECONF
+        MENUITEM SEPARATOR
+        SUBMENU  "~Sort",ID_SORT
+        {
+            MENUITEM "~ICON",         ID_SORTBYICON
+            MENUITEM "~Description"  ,ID_SORTBYDESC
+            MENUITEM "~User",         ID_SORTBYUSER
+            MENUITEM "~URL",          ID_SORTBYURL
+            MENUITEM "~Serial Number",ID_SORTBYSN
+            MENUITEM "~Last Update"  ,ID_SORTBYUPDATE
+        }
+    }
+
+    SUBMENU "~Record",ID_RecordMenu
+    {
+        MENUITEM "~New",          ID_NewRecord
+        MENUITEM "~Delete"       ,ID_DeleteRecord
+        SUBMENU "~MoveTo"        ,ID_MoveRecord
+        { 
+            MENUITEM "blank"     ,ID_MoveTo 
+        }
+        SUBMENU "~CopyTo"        ,ID_CopyRecord
+        {
+            MENUITEM  "blank"    ,ID_CopyTo
+        }
+        MENUITEM SEPARATOR
+        MenuItem "Configure ~Record",ID_ConfRecord
+    }
+
+    MenuItem ""               ,MIS_SEPARATOR
+
+    SUBMENU "~View", ID_VIEWMENU
+    {
+        MENUITEM "~Icon"      , IDB_VIEWICON
+        MENUITEM "~Detail",     IDB_VIEWDETAIL
+    }
+}
+
+MENU ID_CONTEXTMENU
+{
+    MENUITEM "~New Record"   ,ID_CONTEXTNEW
+    MENUITEM "P~roperties",   ID_CONTEXTCONF
+    MENUITEM "~Delete Record",ID_CONTEXTDEL
+    SUBMENU "~MoveTo"        ,ID_MoveRecord
+    {
+        MENUITEM "blank"     ,ID_MoveTo 
+    }
+    SUBMENU "~CopyTo"        ,ID_CopyRecord
+    {
+        MENUITEM  "blank"    ,ID_CopyTo
+    }
+    SUBMENU  "~Sort"         ,ID_CONTEXTSORT
+    {
+        MENUITEM "~ICON"         ,ID_CONTEXTSORTBYICON
+        MENUITEM "~Description"  ,ID_CONTEXTSORTBYDESC
+        MENUITEM "~User"         ,ID_CONTEXTSORTBYUSER
+        MENUITEM "~URL"          ,ID_CONTEXTSORTBYURL
+        MENUITEM "~Serial Number",ID_CONTEXTSORTBYSN
+        MENUITEM "~Last Update"  ,ID_CONTEXTSORTBYUPDATE
+    }
+    MENUITEM SEPARATOR
+    MENUITEM "Copy ~Password",ID_CONTEXTCOPYPASS
+    MENUITEM "Copy ~User"    ,ID_CONTEXTCOPYUSR
+}
+
+
+STRINGTABLE
+{
+    IDB_FILEOPEN, " Open existing file "
+    IDB_FILESAVE, " Save file "
+    IDB_FILSAVAS, " Save file with new name "
+    IDB_EXIT    , " Exit application "
+    IDB_PAGECONF, "Page configuration"
+    IDB_CONFIG  , "Record configuration"
+    IDB_Exec       , "Execute program"
+    ID_FilterExpire ,"Filter expired records"
+    IDB_LOCK        ,"Show/Hide Passwords"
+}
+
+MESSAGETABLE
+{
+    ID_LoadErrorStr, "INVALID FILE NAME! Use a different file name"
+    ID_SaveErrorStr, "INVALID FILE NAME! File has been renamed 'NOW-WORK'"
+}
+
+
+DLGTEMPLATE DLG_PAGECONFIG LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Page Configuration", DLG_PAGECONFIG, 8, 8, 181, 200, WS_VISIBLE,
+            FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        LTEXT        "~Page Name", 65533, 4, 182, 60, 10, DT_MNEMONIC
+        ENTRYFIELD   "", DID_EDIT_CONTROL, 78, 182, 94, 10, ES_MARGIN
+        LTEXT           "Application", 65534,5, 164, 60, 9, NOT WS_GROUP
+        GROUPBOX        "Drop .exe file here", DID_APPGROUP, 
+                        80, 140, 92, 35
+
+        CONTROL         MAIN_FRAME, DID_APPSTATIC, 103, 144, 46, 32,
+                        WC_STATIC,
+                        WS_VISIBLE | SS_ICON
+
+        LTEXT           "Page Info", 65535, 4, 125, 60, 10, NOT WS_GROUP
+        ENTRYFIELD      "", DID_PAGEINFO,  78, 125, 94, 10, ES_MARGIN
+
+        LISTBOX         DID_COLUMLIST, 37, 42, 123, 65,
+                        WS_GROUP | LS_NOADJUSTPOS | LS_OWNERDRAW
+        PUSHBUTTON      "#1105", DID_UP,       48, 25, 16, 16 ,BS_BITMAP
+        PUSHBUTTON      "#1106", DID_SHOWHIDE, 88, 25, 16, 16 ,BS_BITMAP
+        PUSHBUTTON      "#1107", DID_DOWN,    128, 25, 16, 16 ,BS_BITMAP
+        GROUPBOX        "Column Order", DID_COLUM, 24, 20, 148, 98
+
+        PUSHBUTTON   "~OK", DID_OK, 44, 3, 40, 14, WS_GROUP
+        PUSHBUTTON   "~Cancel", DID_CANCEL, 100, 3, 40, 14, WS_GROUP
+    END
+END
+
+DLGTEMPLATE DLG_RECORDCONFIG LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG "Record Configuration", DLG_RECORDCONFIG, 16, 10, 246, 250,
+           WS_VISIBLE, FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        LTEXT "To change icon, drop icon file on box.", 65535,
+                        10, 178, 159, 48,
+                        NOT WS_GROUP
+
+        CONTROL         "Icon", ID_ICONFRAME, 178, 195, 60, 48,
+                        WC_STATIC,
+                        WS_VISIBLE | SS_GROUPBOX
+        CONTROL         MAIN_FRAME, ID_ICONDRAW, 200, 210, 55, 40,
+                        WC_STATIC,
+                        WS_VISIBLE | SS_ICON
+
+        CTEXT           "Description", 65533, 10, 180, 50, 9,
+                        NOT WS_GROUP | DT_VCENTER
+        ENTRYFIELD      "",ID_DESCENTRY, 64, 180, 172, 9, WS_GROUP | ES_MARGIN
+
+        CTEXT           "User", 65531, 10, 160, 50, 9,
+                        NOT WS_GROUP | DT_VCENTER
+        ENTRYFIELD      "", ID_USERENTRY, 64, 160, 172, 9, ES_MARGIN
+
+        CTEXT           "Password", 65529, 10, 140, 50, 9,
+                        NOT WS_GROUP | DT_VCENTER
+        ENTRYFIELD      "", ID_PASSENTRY, 64, 140, 172, 9, ES_MARGIN
+
+        CTEXT           "Serial Number", 65527, 10, 120, 50, 9,
+                        NOT WS_GROUP | DT_VCENTER
+        ENTRYFIELD      "", ID_SNENTRY, 64, 120, 172, 9, ES_MARGIN
+
+        CTEXT           "URL", 65525, 10, 100, 50, 9,
+                        NOT WS_GROUP | DT_VCENTER
+        ENTRYFIELD      "", ID_URLENTRY, 64, 100, 172, 9, ES_MARGIN
+
+        CTEXT           "Memo", 65523, 10, 80, 50, 9,
+                        NOT WS_GROUP | DT_VCENTER
+        ENTRYFIELD      "", ID_MEMOENTRY, 64, 80, 172, 9, ES_MARGIN
+
+        CTEXT           "Day", 65520, 10, 50, 20, 9,
+                        NOT WS_GROUP | DT_LEFT
+        SPINBUTTON      ID_DAYSPIN, 30, 50, 40, 9,
+                        WS_VISIBLE | WS_TABSTOP | SPBS_MASTER |
+                        SPBS_JUSTRIGHT | SPBS_NUMERICONLY
+
+        CTEXT           "Month", 65518, 70, 50, 30, 9,
+                        NOT WS_GROUP | DT_LEFT
+        SPINBUTTON      ID_MONTHSPIN,   100, 50, 40, 9,
+                        WS_VISIBLE | WS_TABSTOP | SPBS_MASTER |
+                        SPBS_JUSTRIGHT | SPBS_NUMERICONLY
+
+        CTEXT           "Year", 65516, 145, 50, 30, 9,
+                        NOT WS_GROUP | DT_LEFT
+        SPINBUTTON      ID_YEARSPIN, 170, 50, 40, 9,
+                        WS_VISIBLE | WS_TABSTOP | SPBS_MASTER |
+                        SPBS_JUSTRIGHT | SPBS_NUMERICONLY
+
+        AUTOCHECKBOX    "No Expiry", ID_NoExpire, 16, 31, 68, 11, WS_GROUP
+        PUSHBUTTON      "Today", ID_TODAY,    90, 30, 40, 12
+        PUSHBUTTON      "+30 days",ID_AFTER30, 140, 30, 40, 12
+        PUSHBUTTON      "-30 days",ID_BEFORE30,190, 30, 40, 12
+
+        PUSHBUTTON      "OK", DID_OK, 11, 7, 40, 13, WS_GROUP
+        PUSHBUTTON      "Cancel", DID_CANCEL, 69, 6, 40, 14,WS_GROUP
+        GROUPBOX        "Expires on:", 1320, 10, 25, 227, 50
+    END
+END
+
+DLGTEMPLATE DLG_PASSCONFIG LOADONCALL MOVEABLE DISCARDABLE
+BEGIN
+    DIALOG  "Password Configuration", DLG_PASSCONFIG, 29, 28, 167, 48,
+            WS_VISIBLE,FCF_SYSMENU | FCF_TITLEBAR
+    BEGIN
+        LTEXT           "Password", DID_PASSTEXT, 9, 31, 46, 11,
+                        NOT WS_GROUP | DT_VCENTER
+        ENTRYFIELD      "", DID_PASSWORD, 56, 31, 98, 11,
+                        WS_GROUP | ES_MARGIN
+
+        PUSHBUTTON   "~Use encryption", DID_OK, 9, 3, 70, 14, WS_GROUP
+        PUSHBUTTON   "~Don't encrypt",DID_CANCEL, 90, 3, 70, 14, WS_GROUP
+    END
+END

@@ -1,0 +1,178 @@
+Unit jinclude;
+
+{ This file exists to provide a single place to fix any problems with
+  including the wrong system include files.  (Common problems are taken
+  care of by the standard jconfig symbols, but on really weird systems
+  you may have to edit this file.)
+
+  NOTE: this file is NOT intended to be included by applications using the
+  JPEG library.  Most applications need only include jpeglib.h. }
+
+{ Original: jinclude.h Copyright (C) 1991-1994, Thomas G. Lane. }
+
+interface
+
+{$I jconfig.inc}
+
+{ Include auto-config file to find out which system include files we need. }
+
+uses
+{$ifdef Delphi_Stream}
+  classes,
+{$endif}
+{$IFDEF MyClass}
+  classes,sysutils,
+{$ENDIF}
+  jmorecfg;
+
+{ Nomssi:
+  To write a dest/source manager that handle streams rather than files,
+  you can edit the FILEptr definition and the JFREAD() and JFWRITE()
+  functions in this unit, you don't need to change the default managers
+  JDATASRC and JDATADST. }
+
+{$ifdef Delphi_Stream}
+type
+  FILEptr = ^TStream;
+{$else}
+  {$ifdef Delphi_Jpeg}
+  type
+    FILEptr = TCustomMemoryStream;
+  {$else}
+    {$IFDEF MyClass}
+    type
+      TMyFileClass=Class
+         FH:integer;
+         constructor Create(name:string;isRead:BOOLEAN);
+         function MyFileRead(p:pointer;var size:size_t):size_t;
+         function MyFileWrite(p:pointer;var size:size_t):size_t;
+         function MyFileSeek(Offset:integer):size_t;
+         destructor Destroy;
+      END;
+      FILEptr=TMyFileClass;
+    {$ELSE}
+    type
+      FILEptr = ^File;
+    {$endif}
+  {$endif}
+{$ENDIF}
+
+{ We need the NULL macro and size_t typedef.
+  On an ANSI-conforming system it is sufficient to include <stddef.h>.
+  Otherwise, we get them from <stdlib.h> or <stdio.h>; we may have to
+  pull in <sys/types.h> as well.
+  Note that the core JPEG library does not require <stdio.h>;
+  only the default error handler and data source/destination modules do.
+  But we must pull it in because of the references to FILE in jpeglib.h.
+  You can remove those references if you want to compile without <stdio.h>.}
+
+
+
+{ We need memory copying and zeroing functions, plus strncpy().
+  ANSI and System V implementations declare these in <string.h>.
+  BSD doesn't have the mem() functions, but it does have bcopy()/bzero().
+  Some systems may declare memset and memcpy in <memory.h>.
+
+  NOTE: we assume the size parameters to these functions are of type size_t.
+  Change the casts in these macros if not! }
+
+procedure MEMZERO(target : pointer; size : size_t);
+
+procedure MEMCOPY(dest, src : pointer; size : size_t);
+
+{function SIZEOF(object) : size_t;}
+
+function JFREAD(fp : FILEptr; buf : pointer; sizeofbuf : size_t) : size_t;
+
+function JFWRITE(fp : FILEptr; buf : pointer; sizeofbuf : size_t) : size_t;
+
+implementation
+{$IFDEF MyClass}
+constructor TMyFileClass.Create(name:string;isRead:BOOLEAN);
+begin
+    IF isRead THEN BEGIN
+        FH:=FileOpen(Name, fmOpenRead OR fmShareDenyNone );
+    END
+    ELSE BEGIN
+        FH:=FileOpen(name,fmOpenreadWrite OR fmShareExclusive);
+    END;
+    IF FH<=0 THEN Destroy;
+end;
+function TMyFileClass.MyFileRead(p:pointer;var size:size_t):size_t;
+begin
+    MyFileRead:=FileRead( FH, p^, size);
+end;
+function TMyFileClass.MyFileWrite(p:pointer;var size:size_t):size_t;
+begin
+    MyFileWrite:=FileWrite(FH,p^,size);
+end;
+function TMyFIleClass.MyFileSeek(offset:integer):size_t;
+begin
+    FileSeek(FH,offset,0);
+end;
+destructor TMyFileClass.Destroy;
+begin
+   FileClose(FH);
+end;
+{$ENDIF}
+
+procedure MEMZERO(target : pointer; size : size_t);
+begin
+  FillChar(target^, size, 0);
+end;
+
+procedure MEMCOPY(dest, src : pointer; size : size_t);
+begin
+  Move(src^, dest^, size);
+end;
+
+{ In ANSI C, and indeed any rational implementation, size_t is also the
+  type returned by sizeof().  However, it seems there are some irrational
+  implementations out there, in which sizeof() returns an int even though
+  size_t is defined as long or unsigned long.  To ensure consistent results
+  we always use this SIZEOF() macro in place of using sizeof() directly. }
+
+
+{#define
+  SIZEOF(object)  (size_t(sizeof(object))}
+
+
+{ The modules that use fread() and fwrite() always invoke them through
+  these macros.  On some systems you may need to twiddle the argument casts.
+  CAUTION: argument order is different from underlying functions! }
+
+
+function JFREAD(fp : FILEptr; buf : pointer; sizeofbuf : size_t) : size_t;
+var
+  count : uint;
+begin
+  {$IFDEF MyClass}
+    count:=fp.MyFileRead(buf,sizeofbuf);
+  {$ELSE}
+    {$ifdef Delphi_Stream}
+    count := fp^.Read(buf^, sizeofbuf);
+    {$else}
+       blockread(fp^, buf^, sizeofbuf, count);
+    {$endif}
+  {$endif}
+  JFREAD := size_t(count);
+end;
+
+function JFWRITE(fp : FILEptr; buf : pointer; sizeofbuf : size_t) : size_t;
+var
+  count : uint;
+begin
+  {$IFDEF MyClass}
+      count:=fp.MyFileWrite(buf,sizeofbuf);
+  {$ELSE}
+      {$ifdef Delphi_Stream}
+      count := fp^.Write(buf^, sizeofbuf);
+      {$else}
+         blockwrite(fp^, buf^, sizeofbuf, count);
+      {$endif}
+  {$ENDIF}
+  JFWRITE := size_t(count);
+end;
+
+
+end.
